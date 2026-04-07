@@ -1,8 +1,10 @@
 from __future__ import division
 from heapq import nlargest
+from cmaes import CMA
 
 import collections.abc
 import numpy as np
+
 
 def cross_entropy(feats, stdev, width, keep, rng, test_f, noise_f=None, map_f=map):
     # Interpret features
@@ -47,3 +49,44 @@ def cross_entropy(feats, stdev, width, keep, rng, test_f, noise_f=None, map_f=ma
 
         # Reconstruct weight and stdev feature maps
         yield collections.OrderedDict(zip(feats, weights)), collections.OrderedDict(zip(feats, stdev))
+
+
+def cma_es(feats, stdev, width, seed, test_f):
+    # Interpret features
+    if isinstance(feats, collections.abc.Mapping):
+        # Weights provided
+        feats, weights = zip(*feats.items())
+        weights = list(weights)
+    else:
+        # No weights, default to zero
+        feats = list(feats)
+        weights = [0] * len(feats)
+
+    # Interpret stdev
+    if isinstance(stdev, collections.abc.Mapping):
+        # Per-feature stdev
+        stdev = [stdev[feat] for feat in feats]
+    else:
+        # Constant stdev
+        stdev = [stdev] * len(feats)
+    print(len(weights), weights)
+    sigma = np.mean(stdev)
+    optimizer = CMA(weights, sigma, population_size=width, seed=seed)
+
+    while True:
+        results = []
+
+        for _ in range(optimizer.population_size):
+            s = optimizer.ask()
+            results.append((s, test_f(dict(zip(feats, s)))))
+
+        print(f"results length {len(results)}")
+        optimizer.tell(results)
+
+        mean = np.mean([result[0] for result in results], axis=0)
+        stdevs = np.std([result[0] for result in results], axis=0)
+
+        yield (
+            collections.OrderedDict(zip(feats, mean)),
+            collections.OrderedDict(zip(feats, stdevs)),
+        )

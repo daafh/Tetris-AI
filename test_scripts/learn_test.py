@@ -1,7 +1,7 @@
-## Generic imports
+# Generic imports
 import random
 
-## From Simulator Specific Code
+# From Simulator Specific Code
 from cogworks.tetris.game import State, Board, zoids
 from cogworks.tetris import features, simulator
 from cogworks import feature, learning
@@ -21,17 +21,18 @@ def test(feats):
 	# if printing game information to a file, do it here
 	state = State(None, Board(20, 10))
 	sim = simulator.simulate(state, zoid_gen(zoids.classic, random.Random(seed)), move_gen, simulator.policy_best(lambda state: sum(feature.evaluate(state, feats).values()), random.Random(-seed).choice), lookahead = 1)
-	
+
 	for (episode, state) in enumerate(sim, 1):
 		# some end condition
 		if episode >= 525:
 			break
 		# if no end condition, [pass] inside for loop
 	# return whatever value determines goodness, scores, lines cleared, etc
-	print(state.score())
+	# print(state.score())
 	return state.score()
 
-#if starting at all zeroes, put features in a list, if features have actual values, define as a dictionary
+
+# if starting at all zeroes, put features in a list, if features have actual values, define as a dictionary
 
 feats = [
 	features.landing_height,
@@ -43,7 +44,10 @@ feats = [
 ]
 
 # cross entropy takes [features][standard deviation][#models per generation][#kept per generation][rng that takes seed][test function defined above]
-trainer = learning.cross_entropy(feats, 10, 100, 10, random.Random(seed), test)
+# trainer = learning.cross_entropy(feats, 10, 100, 10, random.Random(seed), test)
+trainer = learning.genetic_algorithm(feats, 10, 100, 10, random.Random(seed), test)
+# trainer = learning.particle_swarm_optimization(feats, 10, 100, seed, test)
+# trainer = learning.differential_evolution(feats, 10, 100, seed, test)
 # trainer = learning.cma_es(feats, 10, 100, seed, test)
 
 for (depth, (weights, stdev)) in enumerate(trainer, 1):
@@ -51,12 +55,12 @@ for (depth, (weights, stdev)) in enumerate(trainer, 1):
 
 	stable = True
 	print('Iteration {:6d}: {:>9} {:>9}'.format(depth, 'mean', 'variation'))
-	
+
 	for feat in feats:
 		var = abs(stdev[feat] / weights[feat])
 		print('{:16}: {:> 9.3f} {:> 9.3}'.format(feat.__name__, weights[feat], var))
 		if var > 0.01:
 			stable = False
-		
+
 	if stable:
 		break

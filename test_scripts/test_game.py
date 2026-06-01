@@ -1,24 +1,43 @@
-### Starting Simulator
+# Starting Simulator
 
-## Generic imports
+# Generic imports
 import random
 
-## From Simulator Specific Code
+# From Simulator Specific Code
 from cogworks.tetris.game import State, Board, zoids
 
 from cogworks.tetris import features, simulator
 
 from cogworks import feature
 
-testfeatures = {
-    features.landing_height: -3.383,
-    features.eroded_cells: -9.277,
-    features.row_trans: -2.700,
-    features.col_trans: -6.786,
-    features.pits: -12.668,
-    features.cuml_wells: -0.396
-}
+# testfeatures = {
+#     features.landing_height: -3.383,
+#     features.eroded_cells: -9.277,
+#     features.row_trans: -2.700,
+#     features.col_trans: -6.786,
+#     features.pits: -12.668,
+#     features.cuml_wells: -0.396
+# }
 
+# FEATURES OF DIFFERENTIAL
+# testfeatures = {
+#     features.landing_height: -434.919,
+#     features.eroded_cells: -832.277,
+#     features.row_trans: -274.661,
+#     features.col_trans: -429.168,
+#     features.pits: -1152.084,
+#     features.cuml_wells: -38.673
+# }
+
+# FEATURES OF NORMAL GENETIC
+testfeatures = {
+    features.landing_height: -552.960,
+    features.eroded_cells: -630.324,
+    features.row_trans: -283.080,
+    features.col_trans: -1400.750,
+    features.pits: -828.032,
+    features.cuml_wells: -39.970
+}
 
 ## Create a piece generator (can use a list here, or a generator function)
 
